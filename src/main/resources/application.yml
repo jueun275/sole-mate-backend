@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    include: api-key
   datasource:
     hikari:
       username: sa
