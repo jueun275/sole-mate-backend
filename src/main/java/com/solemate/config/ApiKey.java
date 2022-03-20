@@ -10,7 +10,7 @@ public class ApiKey {
     @Value("${station-api-key}")
     private String stationKey;
 
-
+    @Value("${weather-api-key}")
     private String whetherKey;
 
     @Value("${air-quality-api-key}")
