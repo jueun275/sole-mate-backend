@@ -4,11 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
 @Getter
-public class StationListItemDto {
-    private double dmX;
-    private String stationName;
-    private double dmY;
+public class StationDto {
+    private String totalCount;
+    private String pageNo;
+    private String numOfRows;
+    private List<StationItemsDto> items;
 }

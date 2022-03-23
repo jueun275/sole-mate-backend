@@ -3,13 +3,11 @@ package com.solemate.endpoint.openapi.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solemate.config.ApiKey;
-import com.solemate.endpoint.openapi.dto.StationListIDto;
-import com.solemate.endpoint.openapi.dto.StationListItemDto;
-import com.sun.xml.bind.v2.runtime.output.Encoded;
+import com.solemate.endpoint.openapi.dto.StationDto;
+import com.solemate.endpoint.openapi.dto.StationItemsDto;
 import lombok.RequiredArgsConstructor;
 
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -21,8 +19,6 @@ import org.yaml.snakeyaml.util.UriEncoder;
 
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,22 +30,23 @@ public class AirQualityService {
 
     public ResponseEntity<String> getAirQuality(double currLat, double currLon) throws ParseException, JsonProcessingException {
         String stationName = getNearStationName(currLat, currLon, jsonParsing(getStationList()));
+        System.out.println(stationName);
         URI uri = getAirQualityUri(stationName);
         return restTemplate.getForEntity(uri, String.class);
     }
 
-    public ResponseEntity<String> getStationList() throws ParseException {
+    public ResponseEntity<String> getStationList() {
         URI uri = getStationListUrl();
         return restTemplate.getForEntity(uri, String.class);
     }
 
-    private List<StationListItemDto> jsonParsing(ResponseEntity<String> response) throws ParseException, JsonProcessingException {
+    private List<StationItemsDto> jsonParsing(ResponseEntity<String> response) throws ParseException, JsonProcessingException {
         JSONParser jsonParser = new JSONParser();
         JSONObject jsonObject = (JSONObject) jsonParser.parse(Objects.requireNonNull(response.getBody()));
         JSONObject responseObject = (JSONObject) jsonObject.get("response");
         String bodyObject =  responseObject.get("body").toString();
         ObjectMapper mapper = new ObjectMapper();
-        StationListIDto dtos = mapper.readValue(bodyObject, StationListIDto.class);
+        StationDto dtos = mapper.readValue(bodyObject, StationDto.class);
         return dtos.getItems();
     }
 
@@ -84,11 +81,11 @@ public class AirQualityService {
     }
 
 
-    private String getNearStationName(double currLat, double currLon, List<StationListItemDto> stationListItemDto ) {
+    private String getNearStationName(double currLat, double currLon, List<StationItemsDto> stationItemsDto) {
         String StationName = "";
         double nearDist = 10000;
 
-        for(StationListItemDto dto : stationListItemDto){
+        for(StationItemsDto dto : stationItemsDto){
             double theta = currLon - dto.getDmY();
             double dist = Math.sin(deg2rad(currLat)) * Math.sin(deg2rad(dto.getDmX())) + Math.cos(deg2rad(currLat)) * Math.cos(deg2rad(dto.getDmX())) * Math.cos(deg2rad(theta));
 
