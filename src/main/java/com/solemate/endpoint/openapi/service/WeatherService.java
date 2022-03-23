@@ -1,7 +1,15 @@
 package com.solemate.endpoint.openapi.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solemate.config.ApiKey;
+import com.solemate.endpoint.openapi.dto.WeatherDto;
+import com.solemate.endpoint.openapi.dto.WeatherItemsDto;
 import lombok.RequiredArgsConstructor;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -12,6 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -19,10 +29,10 @@ public class WeatherService {
     private final ApiKey apiKey;
     private final RestTemplate restTemplate;
 
-    public ResponseEntity<String> getWeather(double currLat, double currLon){
+    public List<WeatherItemsDto> getWeather(double currLat, double currLon) throws ParseException, JsonProcessingException {
         LatXLngY latXLngY = convertGrid(currLat, currLon);
         URI uri = getUri(latXLngY.x, latXLngY.y);
-        return restTemplate.getForEntity(uri, String.class);
+        return jsonParsing(restTemplate.getForEntity(uri, String.class));
     }
 
 
@@ -34,7 +44,7 @@ public class WeatherService {
 
     private String getBaseTime(){
         LocalTime now = LocalTime.now();
-        LocalTime baseTime = now.minusMinutes(40);
+        LocalTime baseTime = now.minusMinutes(60);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmm"); // 포맷 적용
         return baseTime.format(formatter);
     }
@@ -54,6 +64,23 @@ public class WeatherService {
                 .build(true)
                 .encode(StandardCharsets.UTF_8)
                 .toUri();
+    }
+
+    private List<WeatherItemsDto> jsonParsing(ResponseEntity<String> response) throws ParseException, JsonProcessingException {
+        JSONParser jsonParser = new JSONParser();
+        JSONObject jsonObject = (JSONObject) jsonParser.parse(Objects.requireNonNull(response.getBody()));
+        JSONObject responseObject = (JSONObject) jsonObject.get("response");
+        JSONObject bodyObject = (JSONObject) responseObject.get("body");
+        String bodyString= bodyObject.get("items").toString();
+        ObjectMapper mapper = new ObjectMapper();
+        WeatherDto dto = mapper.readValue(bodyString, WeatherDto.class);
+
+        //필요한 데이터 뺴고 삭제
+        dto.getItem().removeIf(weatherItemsDto -> !Objects.equals(weatherItemsDto.getCategory(), "SKY") && !Objects.equals(weatherItemsDto.getCategory(), "T1H"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmm");
+        String time = LocalTime.of(LocalTime.now().getHour(), 0).format(formatter);
+        dto .getItem().removeIf(weatherItemsDto -> !Objects.equals(weatherItemsDto.getFcstTime(), time));
+        return dto.getItem();
     }
 
     // 위경도 -> 기상청 좌표 변환 함수
