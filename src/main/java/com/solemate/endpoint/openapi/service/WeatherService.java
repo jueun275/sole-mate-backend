@@ -76,7 +76,7 @@ public class WeatherService {
         WeatherDto dto = mapper.readValue(bodyString, WeatherDto.class);
 
         //필요한 데이터 뺴고 삭제
-        dto.getItem().removeIf(weatherItemsDto -> !Objects.equals(weatherItemsDto.getCategory(), "SKY") && !Objects.equals(weatherItemsDto.getCategory(), "T1H"));
+        dto.getItem().removeIf(weatherItemsDto -> !Objects.equals(weatherItemsDto.getCategory(), "SKY") && !Objects.equals(weatherItemsDto.getCategory(), "T1H") && !Objects.equals(weatherItemsDto.getCategory(), "PTY"));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmm");
         String time = LocalTime.of(LocalTime.now().getHour(), 0).format(formatter);
         dto .getItem().removeIf(weatherItemsDto -> !Objects.equals(weatherItemsDto.getFcstTime(), time));
