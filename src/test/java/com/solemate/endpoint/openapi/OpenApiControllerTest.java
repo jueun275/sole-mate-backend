@@ -28,7 +28,7 @@ public class OpenApiControllerTest {
         double currLat = 37.5666805;
         double currLon = 126.9784147;
 
-        String url = "http://localhost:" + port + "/openApi/"+currLat+"/"+currLon;
+        String url = "http://localhost:" + port + "/openApi/dust/"+currLat+"/"+currLon;
 
         //when
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);

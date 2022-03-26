@@ -19,7 +19,7 @@ public class OpenApiController {
     private final AirQualityService airQualityService;
     private final WeatherService weatherService;
 
-    @GetMapping("openApi/{currLat}/{currLon}")
+    @GetMapping("openApi/dust/{currLat}/{currLon}")
     public ResponseEntity<String> getAirQuality(@PathVariable double currLat, @PathVariable double currLon) throws ParseException, JsonProcessingException {
        return airQualityService.getAirQuality(currLat, currLon);
     }
