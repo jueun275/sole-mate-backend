@@ -62,7 +62,7 @@ public class UserControllerTest {
         UserSaveRequestDto requestDto = UserSaveRequestDto.builder()
                 .userId(testUserId)
                 .userPassword(testUserPassword)
-                .userNm("testUser")
+                .userName("testUser")
                 .build();
 
 

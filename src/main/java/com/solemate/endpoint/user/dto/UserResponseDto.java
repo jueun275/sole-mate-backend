@@ -9,14 +9,14 @@ import lombok.NoArgsConstructor;
 public class UserResponseDto {
     private Long userCd;
     private String userId;
-    private String userNm;
+    private String userName;
     private String userPic;
     private String userEx;
 
     public UserResponseDto(User user){
         this.userCd = user.getUserCd();
         this.userId = user.getUserId();
-        this.userNm = user.getUserNm();
+        this.userName = user.getUserName();
         this.userPic = user.getUserPic();
         this.userEx = user.getUserEx();
     }

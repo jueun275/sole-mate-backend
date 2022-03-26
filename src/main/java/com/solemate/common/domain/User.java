@@ -16,7 +16,7 @@ public class User {
     private Long userCd;
 
     @Column(nullable = false)
-    private String userNm;
+    private String userName;
 
     @Column(nullable = false)
     private String userId;
@@ -39,12 +39,12 @@ public class User {
     @Builder
     public User(String userId,
                 String userPassword,
-                String userNm,
+                String userName,
                 String userPic)
     {
         this.userId = userId;
         this.userPassword = userPassword;
-        this.userNm = userNm;
+        this.userName = userName;
         this.userPic = userPic;
     }
 }
