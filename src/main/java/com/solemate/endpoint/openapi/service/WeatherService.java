@@ -10,6 +10,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -26,15 +29,16 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Service
 public class WeatherService {
+
     private final ApiKey apiKey;
     private final RestTemplate restTemplate;
 
+    @Cacheable(cacheNames = "weather", key = "#currLat + #currLon")
     public List<WeatherItemsDto> getWeather(double currLat, double currLon) throws ParseException, JsonProcessingException {
         LatXLngY latXLngY = convertGrid(currLat, currLon);
         URI uri = getUri(latXLngY.x, latXLngY.y);
         return jsonParsing(restTemplate.getForEntity(uri, String.class));
     }
-
 
     private String getBaseDate(){
         LocalDate now = LocalDate.now(); // 포맷 정의
@@ -84,7 +88,8 @@ public class WeatherService {
     }
 
     // 위경도 -> 기상청 좌표 변환 함수
-    private LatXLngY convertGrid(double currLat, double currLon) {
+    @Cacheable(cacheNames = "convertXY", key = "#currLat + #currLon")
+    public LatXLngY convertGrid(double currLat, double currLon) {
         double RE = 6371.00877; // 지구 반경(km)
         double GRID = 5.0; // 격자 간격(km)
         double SLAT1 = 30.0; // 투영 위도1(degree)

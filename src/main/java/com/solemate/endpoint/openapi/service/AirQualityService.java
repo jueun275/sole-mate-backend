@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -28,6 +29,7 @@ public class AirQualityService {
     private final RestTemplate restTemplate;
     private final ApiKey apiKey;
 
+    @Cacheable(cacheNames = "airQuality", key = "#currLat + #currLon")
     public ResponseEntity<String> getAirQuality(double currLat, double currLon) throws ParseException, JsonProcessingException {
         String stationName = getNearStationName(currLat, currLon, jsonParsing(getStationList()));
         System.out.println(stationName);
@@ -35,6 +37,7 @@ public class AirQualityService {
         return restTemplate.getForEntity(uri, String.class);
     }
 
+    @Cacheable(cacheNames = "stationList")
     public ResponseEntity<String> getStationList() {
         URI uri = getStationListUrl();
         return restTemplate.getForEntity(uri, String.class);
