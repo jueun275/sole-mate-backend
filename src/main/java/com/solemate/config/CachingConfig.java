@@ -14,8 +14,14 @@ import java.util.Date;
 public class CachingConfig {
 
     @CacheEvict(allEntries = true, value = "airQuality")
-    @Scheduled(cron ="0 0 0/1 * * *")
-    public void reportCacheEvict() {
-        System.out.println("Flush Cache " +new Date());
+    @Scheduled(cron ="0 16 * * * *")
+    public void airQualityCacheEvict() {
+        System.out.println("airQuality Cache Evict :: " + new Date());
+    }
+
+    @CacheEvict(allEntries = true, value = "weather")
+    @Scheduled(cron ="0 0/30 0 * * *")
+    public void weatherCacheEvict() {
+        System.out.println("weather Cache Evict  :: " +new Date());
     }
 }
