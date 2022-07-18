@@ -5,3 +5,6 @@ build/
 
 #api-key
 application-api-key.yml
+
+#jwt
+application-jwt.yml
